@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 
 const PayoutSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   amount: { type: Number, required: true },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'paid'],
+    enum: ['pending', 'approved', 'paid', 'failed'],
     default: 'pending',
   },
   triggerType: { type: String },
-  createdAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Payout', PayoutSchema);

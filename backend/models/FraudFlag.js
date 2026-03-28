@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 
 const FraudFlagSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   score: { type: Number, required: true },
   reason: { type: String },
   status: {
     type: String,
-    enum: ['open', 'resolved'],
+    enum: ['open', 'investigating', 'resolved', 'dismissed'],
     default: 'open',
   },
-  createdAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('FraudFlag', FraudFlagSchema);
