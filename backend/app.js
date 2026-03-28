@@ -7,6 +7,7 @@ const healthRoute = require('./routes/health');
 const activityRoute = require('./routes/activity');
 const riskRoute = require('./routes/risk');
 const authRoute = require('./routes/auth');
+const payoutRoute = require('./routes/payout');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/health', healthRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/activity', activityRoute);
 app.use('/api/risk', riskRoute);
+app.use('/api/payout', payoutRoute);
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {
