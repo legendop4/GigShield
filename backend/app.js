@@ -6,6 +6,8 @@ const errorHandler = require('./middleware/errorHandler');
 const healthRoute = require('./routes/health');
 const activityRoute = require('./routes/activity');
 const riskRoute = require('./routes/risk');
+const authRoute = require('./routes/auth');
+
 const app = express();
 
 // Middleware
@@ -16,6 +18,7 @@ app.use(logger);                  // Request logging
 
 // Routes
 app.use('/api/health', healthRoute);
+app.use('/api/auth', authRoute);
 app.use('/api/activity', activityRoute);
 app.use('/api/risk', riskRoute);
 
