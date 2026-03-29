@@ -1,0 +1,18 @@
+# GigShield ML Service — Python cache
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+*.env
+
+# Trained model (regenerate via train_model.py)
+models/*.joblib
+models/*.pkl
+
+# pytest cache
+.pytest_cache/
+
+# Virtual environment
+venv/
+.venv/
