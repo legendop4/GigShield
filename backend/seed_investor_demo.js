@@ -78,14 +78,8 @@ const DEMO_USERS = [
 ];
 
 async function seed() {
-  if (!MONGO_URI) {
-    console.error("❌ MONGO_URI not found");
-    process.exit(1);
-  }
-
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log("Connected to MongoDB...");
+    console.log("Starting cloud-optimized seeding...");
 
     // 1. Wipe previous state for these specific users
     const userIds = DEMO_USERS.map(u => u._id);
@@ -100,13 +94,13 @@ async function seed() {
     // 2. Create Users
     for (const uData of DEMO_USERS) {
       const type = uData.type;
-      delete uData.type;
-      await User.create(uData);
+      const uToCreate = { ...uData };
+      delete uToCreate.type;
+      await User.create(uToCreate);
 
       // Seed Activity
       const now = new Date();
       if (type === 'legit' || type === 'high-risk') {
-        // Consistent activity (every hour for 5 hours)
         for (let i = 5; i > 0; i--) {
           await ActivityLog.create({
             userId: uData._id,
@@ -116,7 +110,6 @@ async function seed() {
           });
         }
       } else if (type === 'suspicious') {
-        // Only 1 activity entry in the last month (No history)
         await ActivityLog.create({
           userId: uData._id,
           location: { lat: 28.7041, lng: 77.1025 },
@@ -124,21 +117,19 @@ async function seed() {
           timestamp: new Date(now.getTime() - (86400000 * 10))
         });
       } else if (type === 'fraud') {
-        // Impossible telemetry: 2 activities in 5 mins but locations are 500 miles apart
         await ActivityLog.create({
           userId: uData._id,
-          location: { lat: 28.7041, lng: 77.1025 }, // Delhi
+          location: { lat: 28.7041, lng: 77.1025 },
           deliveriesCompleted: 1,
-          timestamp: new Date(now.getTime() - 600000) // 10 mins ago
+          timestamp: new Date(now.getTime() - 600000)
         });
         await ActivityLog.create({
           userId: uData._id,
-          location: { lat: 19.0760, lng: 72.8777 }, // Mumbai
+          location: { lat: 19.0760, lng: 72.8777 },
           deliveriesCompleted: 1,
-          timestamp: new Date(now.getTime() - 300000) // 5 mins ago
+          timestamp: new Date(now.getTime() - 300000)
         });
 
-        // Set fraud flag explicitly
         await FraudFlag.create({
           userId: uData._id,
           score: 0.99,
@@ -147,7 +138,6 @@ async function seed() {
         });
       }
 
-      // Base risk score (stable)
       await RiskScore.create({
         userId: uData._id,
         score: 0.1,
@@ -155,12 +145,19 @@ async function seed() {
       });
     }
 
-    console.log("✅ Determined State Seed Sequence Complete!");
-    process.exit(0);
+    console.log("✅ Seeding sequence complete.");
+    return true;
   } catch (err) {
     console.error("❌ Seeding failed:", err);
-    process.exit(1);
+    throw err;
   }
 }
 
-seed();
+module.exports = { seed, DEMO_USERS };
+
+// Allow running standalone if needed
+if (require.main === module) {
+  const MONGO_URI = process.env.MONGO_URI || env.MONGO_URI;
+  if (!MONGO_URI) { console.error("MONGO_URI missing"); process.exit(1); }
+  mongoose.connect(MONGO_URI).then(() => seed().then(() => process.exit(0)));
+}

@@ -35,19 +35,16 @@ const getSystemStateSnapshot = async () => {
     return snapshot;
 };
 
+const { seed, DEMO_USERS } = require('../seed_investor_demo.js');
+
 // 1. Reset Demo State
 exports.resetDemoState = async (req, res, next) => {
     try {
-        const scriptPath = path.resolve(__dirname, '../seed_investor_demo.js');
-        exec(`node "${scriptPath}"`, { cwd: path.resolve(__dirname, '../'), env: { ...process.env } }, async (error, stdout, stderr) => {
-            if (error) {
-                console.error("Seed script error:", stderr);
-                return next(error);
-            }
-            const defaultState = await getSystemStateSnapshot();
-            res.json({ success: true, message: "Deterministic environment restored.", state: defaultState });
-        });
+        await seed();
+        const defaultState = await getSystemStateSnapshot();
+        res.json({ success: true, message: "Deterministic environment restored.", state: defaultState });
     } catch (err) {
+        console.error("Reset demo failed:", err);
         next(err);
     }
 };
