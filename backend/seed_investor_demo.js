@@ -32,30 +32,36 @@ const Payout = require('../shared/models/Payout');
 const DEMO_USERS = [
   {
     _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000001"),
-    name: "Legit Worker",
-    email: "legit@gigshield.ai",
-    phone: "+919876543201",
-    trustScore: 0.98,
+    name: "Shivam (Perfect Pilot)",
+    email: "shivam@gigshield.ai",
+    phone: "+919999999901",
+    trustScore: 0.99,
     isPremium: true, tier: 'sentinel',
-    type: "legit"
+    type: "legit",
+    otp: "123456",
+    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
   },
   {
     _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000002"),
-    name: "High-Risk Worker",
+    name: "High-Risk Node",
     email: "risk@gigshield.ai",
     phone: "+919876543202",
     trustScore: 0.85,
     isPremium: true, tier: 'sentinel',
-    type: "high-risk"
+    type: "high-risk",
+    otp: "123456",
+    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
   },
   {
     _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000003"),
-    name: "Suspicious User",
+    name: "Suspicious Pattern",
     email: "suspicious@gigshield.ai",
     phone: "+919876543203",
     trustScore: 0.40,
     isPremium: true, tier: 'sentinel',
-    type: "suspicious"
+    type: "suspicious",
+    otp: "123456",
+    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
   },
   {
     _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000004"),
@@ -64,7 +70,9 @@ const DEMO_USERS = [
     phone: "+919876543204",
     trustScore: 0.10,
     isPremium: true, tier: 'sentinel',
-    type: "fraud"
+    type: "fraud",
+    otp: "123456",
+    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
   }
 ];
 
