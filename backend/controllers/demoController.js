@@ -45,7 +45,7 @@ exports.resetDemoState = async (req, res, next) => {
         res.json({ success: true, message: "Deterministic environment restored.", state: defaultState });
     } catch (err) {
         console.error("Reset demo failed:", err);
-        next(err);
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 

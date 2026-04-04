@@ -81,18 +81,28 @@ async function seed() {
   try {
     console.log("Starting cloud-optimized seeding...");
 
-    // 1. Wipe previous state for these specific users
+    // 1. Wipe previous state for these specific users (By ID and Email/Phone for safety)
     const userIds = DEMO_USERS.map(u => u._id);
-    await User.deleteMany({ _id: { $in: userIds } });
+    const userEmails = DEMO_USERS.map(u => u.email);
+    const userPhones = DEMO_USERS.map(u => u.phone);
+
+    console.log("Cleaning up previous artifacts...");
+    await User.deleteMany({ $or: [
+        { _id: { $in: userIds } },
+        { email: { $in: userEmails } },
+        { phone: { $in: userPhones } }
+    ]});
+
     await ActivityLog.deleteMany({ userId: { $in: userIds } });
     await RiskScore.deleteMany({ userId: { $in: userIds } });
     await FraudFlag.deleteMany({ userId: { $in: userIds } });
     await Payout.deleteMany({ userId: { $in: userIds } });
 
-    console.log("Cleared old demo state.");
+    console.log("Database cleared. Re-initializing personas...");
 
     // 2. Create Users
     for (const uData of DEMO_USERS) {
+      console.log(`Creating persona: ${uData.name}...`);
       const type = uData.type;
       const uToCreate = { ...uData };
       delete uToCreate.type;
