@@ -9,7 +9,7 @@ const envPathCore = path.join(__dirname, '.env');
 let envContent = '';
 if (fs.existsSync(envPathLocal)) {
     envContent = fs.readFileSync(envPathLocal, 'utf8');
-} else {
+} else if (fs.existsSync(envPathCore)) {
     envContent = fs.readFileSync(envPathCore, 'utf8');
 }
 
