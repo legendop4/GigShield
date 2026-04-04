@@ -6,7 +6,7 @@ services:
   - type: pserv
     name: mongodb
     runtime: docker
-    dockerfile: mongo.Dockerfile
+    dockerfilePath: mongo.Dockerfile
     region: singapore
     plan: starter
     numInstances: 1
@@ -19,8 +19,8 @@ services:
   - type: pserv
     name: ml-service
     runtime: docker
-    dockerfile: ml-service/Dockerfile
-    context: .
+    dockerfilePath: ml-service/Dockerfile
+    dockerContext: .
     region: singapore
     plan: starter
     healthCheckPath: /health
@@ -34,8 +34,8 @@ services:
   - type: pserv
     name: backend
     runtime: docker
-    dockerfile: backend/Dockerfile
-    context: .
+    dockerfilePath: backend/Dockerfile
+    dockerContext: .
     region: singapore
     plan: starter
     healthCheckPath: /api/health
@@ -57,8 +57,8 @@ services:
   - type: worker
     name: trigger-engine
     runtime: docker
-    dockerfile: trigger-engine/Dockerfile
-    context: .
+    dockerfilePath: trigger-engine/Dockerfile
+    dockerContext: .
     region: singapore
     plan: starter
     envVars:
@@ -75,8 +75,8 @@ services:
   - type: web
     name: gigshield-frontend
     runtime: docker
-    dockerfile: frontend/Dockerfile
-    context: .
+    dockerfilePath: frontend/Dockerfile
+    dockerContext: .
     region: singapore
     plan: starter
     healthCheckPath: /
