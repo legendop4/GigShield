@@ -3,7 +3,7 @@
 # ─────────────────────────────────────────────
 services:
   # 💾 Database Tier — Persisted Private Service
-  - type: private
+  - type: pserv
     name: mongodb
     runtime: docker
     dockerfile: mongo.Dockerfile
@@ -16,7 +16,7 @@ services:
       sizeGB: 1
 
   # ⚙️ ML Risk Service — Internal FastAPI Worker
-  - type: private
+  - type: pserv
     name: ml-service
     runtime: docker
     dockerfile: ml-service/Dockerfile
@@ -31,7 +31,7 @@ services:
         value: production
 
   # 🛠️ Backend API — Core Logic & Socket Service
-  - type: private
+  - type: pserv
     name: backend
     runtime: docker
     dockerfile: backend/Dockerfile
