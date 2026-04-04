@@ -1,3 +1,12 @@
+---
+title: GigShield AI
+emoji: 🛡️
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # GigShield AI — Parametric Protection for Gig Workers
 
 > **Autonomous income protection for gig workers.** GigShield AI monitors real-time environmental risk (weather, traffic, pollution) and the moment conditions breach a policy threshold, it automatically triggers a payout — no claims process, no waiting.
