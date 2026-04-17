@@ -1,3 +1,11 @@
+---
+title: GigShield Demo
+emoji: 🚀
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
 # GigShield AI
 
 ### AI Powered Parametric Insurance for Gig Economy Workers

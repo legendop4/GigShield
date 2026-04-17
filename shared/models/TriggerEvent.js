@@ -14,4 +14,5 @@ const TriggerEventSchema = new mongoose.Schema({
   errorMessage: { type: String },
 }, { timestamps: true });
 
-module.exports = mongoose.model('TriggerEvent', TriggerEventSchema);
+const MongooseModel = mongoose.model('TriggerEvent', TriggerEventSchema);
+module.exports = require('../dbAdapter')('TriggerEvent', MongooseModel);

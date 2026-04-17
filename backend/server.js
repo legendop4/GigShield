@@ -8,8 +8,14 @@ const startServer = async () => {
   // Connect to MongoDB first
   await connectDB();
 
-  // Create HTTP server wrapping Express
   const server = http.createServer(app);
+
+  // If MongoDB didn't connect, handle Trigger Engine intra-process!
+  const mongoose = require('mongoose');
+  if (mongoose.connection.readyState !== 1) {
+    console.log('⚡ Starting Trigger Engine explicitly within Node Backend (Fallback Memory Mode)');
+    require('../trigger-engine/scheduler').startScheduler();
+  }
 
   // Initialize WebSockets
   socketService.init(server);

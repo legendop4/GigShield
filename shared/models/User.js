@@ -13,4 +13,5 @@ const UserSchema = new mongoose.Schema({
   otpExpiresAt: { type: Date },
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', UserSchema);
+const MongooseModel = mongoose.model('User', UserSchema);
+module.exports = require('../dbAdapter')('User', MongooseModel);

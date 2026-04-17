@@ -3,8 +3,32 @@
  */
 const crypto = require('crypto');
 
+// --- FLASH CRASH CIRCUIT BREAKER MEMORY ---
+const PAYOUT_HISTORY = [];
+const FREEZE_THRESHOLD = 50000; // INR
+const WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+
+const isGlobalFreezeActive = (newAmount) => {
+    const now = Date.now();
+    // Prune history
+    while (PAYOUT_HISTORY.length > 0 && PAYOUT_HISTORY[0].timestamp < now - WINDOW_MS) {
+        PAYOUT_HISTORY.shift();
+    }
+    const currentSum = PAYOUT_HISTORY.reduce((acc, p) => acc + p.amount, 0);
+    return (currentSum + newAmount) > FREEZE_THRESHOLD;
+};
+
 const simulatePayout = async (userId, amount, idempotencyKey = null) => {
   return new Promise((resolve) => {
+    // CIRCUIT BREAKER CHECK
+    if (isGlobalFreezeActive(amount)) {
+        console.error(`[CIRCUIT BREAKER] Flash Crash Triggered! Blocked ${amount} INR payout.`);
+        return resolve({ success: false, status: 'failed', transactionId: null, reason: 'GLOBAL_PAYOUT_FREEZE' });
+    }
+    
+    // Log intent to history
+    PAYOUT_HISTORY.push({ amount, timestamp: Date.now() });
+
     // Simulate gateway delay
     setTimeout(() => {
       let txSeed;

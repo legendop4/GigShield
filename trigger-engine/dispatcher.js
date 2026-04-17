@@ -8,7 +8,7 @@
 
 const axios = require('axios');
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5001';
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY;
 const DEFAULT_PAYOUT_AMOUNT = parseFloat(process.env.DEFAULT_PAYOUT_AMOUNT) || 500;
 

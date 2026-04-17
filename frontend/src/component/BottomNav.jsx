@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Shield, Wallet, History, User as UserIcon } from 'lucide-react';
+import { Shield, Wallet, History, User as UserIcon, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const BottomNav = () => {
@@ -11,6 +11,7 @@ const BottomNav = () => {
     { name: 'Payouts', icon: Wallet, path: '/payouts' },
     { name: 'History', icon: History, path: '/history' },
     { name: 'Profile', icon: UserIcon, path: '/profile' },
+    ...(user?.role === 'admin' ? [{ name: 'Admin', icon: ShieldAlert, path: '/admin' }] : []),
   ];
 
   return (

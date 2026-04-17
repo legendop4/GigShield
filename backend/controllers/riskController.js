@@ -2,36 +2,34 @@ const mongoose = require('mongoose');
 const ActivityLog = require('../../shared/models/ActivityLog');
 const RiskScore = require('../../shared/models/RiskScore');
 const { getRiskScore } = require('../services/mlService');
+const { getWeatherData } = require('../services/weatherService');
 
 /**
- * @desc   Compute and store risk score for a user
+ * @desc   Compute and store risk score for a user (with live weather)
  * @route  POST /api/risk/score/:userId
  */
 exports.computeRiskScore = async (req, res, next) => {
   try {
     const { userId } = req.params;
-
-    // Validate userId is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      const err = new Error('userId must be a valid ObjectId');
-      err.statusCode = 400;
-      throw err;
-    }
+    const { lat, lng } = req.body; // Optional GPS from frontend
 
     // 1. Retrieve activity count for the user
     const activityCount = await ActivityLog.countDocuments({ userId });
 
-    // 2. Build ML input payload with numeric values
+    // 2. Fetch LIVE weather data from OpenWeather
+    const weather = await getWeatherData(lat || 28.7041, lng || 77.1025);
+
+    // 3. Build ML input payload with REAL environmental data
     const mlPayload = {
       userId,
-      weather: 1,       // 1=clear, 2=rain, 3=storm (numeric proxy)
-      traffic: 2,       // 1=low, 2=moderate, 3=heavy (numeric proxy)
-      pollution: 1,     // 1=low, 2=medium, 3=high (numeric proxy)
+      weather: weather.weatherRisk,       // 1-10 from live OpenWeather
+      traffic: 2,                          // TODO: integrate traffic API
+      pollution: weather.pollutionRisk,    // 1-10 from live AQI
       history: activityCount,
       isNewUser: activityCount === 0,
     };
 
-    // 3. Call ML service — isolated catch returns 503 on failure
+    // 4. Call ML service — isolated catch returns 503 on failure
     let mlResult;
     try {
       mlResult = await getRiskScore(mlPayload);
@@ -50,7 +48,7 @@ exports.computeRiskScore = async (req, res, next) => {
       throw err;
     }
 
-    // 4. Store result with full auditable factors
+    // 5. Store result with full auditable factors including weather
     const riskRecord = await RiskScore.create({
       userId,
       score: risk_score,
@@ -61,11 +59,26 @@ exports.computeRiskScore = async (req, res, next) => {
         history: mlPayload.history,
         activityCount,
         isNewUser: mlPayload.isNewUser,
+        weatherCondition: weather.condition,
+        weatherTemp: weather.temp,
+        weatherCity: weather.city,
+        weatherSource: weather.source,
       },
     });
 
-    // 5. Return response
-    res.json({ success: true, risk_score: riskRecord.score });
+    // 6. Return response with weather context
+    res.json({ 
+      success: true, 
+      risk_score: riskRecord.score,
+      weather: {
+        condition: weather.condition,
+        description: weather.description,
+        temp: weather.temp,
+        city: weather.city,
+        weatherRisk: weather.weatherRisk,
+        pollutionRisk: weather.pollutionRisk,
+      }
+    });
   } catch (err) {
     next(err);
   }
@@ -78,12 +91,6 @@ exports.computeRiskScore = async (req, res, next) => {
 exports.getLatestRiskScore = async (req, res, next) => {
   try {
     const { userId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      const err = new Error('userId must be a valid ObjectId');
-      err.statusCode = 400;
-      throw err;
-    }
 
     const latestRisk = await RiskScore.findOne({ userId })
       .sort({ createdAt: -1 })

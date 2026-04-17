@@ -25,6 +25,7 @@ function generateCycleId() {
 
 /**
  * Execute one full evaluation + dispatch cycle.
+ * NEW: Fetches live weather → computes risk scores → evaluates → dispatches payouts
  */
 async function runCycle() {
   if (isRunning) {
@@ -39,6 +40,59 @@ async function runCycle() {
   console.log(`========================================`);
 
   try {
+    // Phase 0: Fetch live weather and update risk scores for all premium users
+    try {
+      const { getWeatherData } = require('../backend/services/weatherService');
+      const User = require('../shared/models/User');
+      const ActivityLog = require('../shared/models/ActivityLog');
+      const RiskScore = require('../shared/models/RiskScore');
+      const { getRiskScore } = require('../backend/services/mlService');
+
+      const weather = await getWeatherData(); // Delhi NCR default
+      console.log(`[WEATHER] Live: ${weather.condition} (${weather.temp}°C) — Risk: ${weather.weatherRisk}/10, AQI Risk: ${weather.pollutionRisk}/10`);
+
+      // Only auto-score if weather risk is significant (>=4)
+      if (weather.weatherRisk >= 4) {
+        console.log(`[WEATHER] ⚠️ Elevated weather risk detected! Computing risk scores...`);
+        const users = await User.find({}).lean();
+        
+        for (const user of users) {
+          const userId = user._id.toString();
+          const activityCount = await ActivityLog.countDocuments({ userId });
+          
+          try {
+            const mlResult = await getRiskScore({
+              userId,
+              weather: weather.weatherRisk,
+              traffic: 2,
+              pollution: weather.pollutionRisk,
+              history: activityCount,
+              isNewUser: activityCount === 0,
+            });
+
+            await RiskScore.create({
+              userId,
+              score: mlResult.risk_score,
+              factors: {
+                weather: weather.weatherRisk,
+                pollution: weather.pollutionRisk,
+                weatherCondition: weather.condition,
+                weatherTemp: weather.temp,
+                source: 'trigger_engine_auto',
+              },
+            });
+            console.log(`[RISK] ${user.name || userId}: score=${mlResult.risk_score.toFixed(3)}`);
+          } catch (e) {
+            console.error(`[RISK] Failed for ${userId}:`, e.message);
+          }
+        }
+      } else {
+        console.log(`[WEATHER] ✅ Weather is stable (risk ${weather.weatherRisk}/10) — skipping risk recomputation`);
+      }
+    } catch (weatherErr) {
+      console.error(`[WEATHER] Could not fetch weather — proceeding with existing risk scores:`, weatherErr.message);
+    }
+
     // Phase 1: Evaluate
     const eligibleUsers = await evaluate();
     console.log(`[EVALUATE] Found ${eligibleUsers.length} eligible user(s) for payout.`);

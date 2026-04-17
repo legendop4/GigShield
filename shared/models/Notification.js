@@ -12,4 +12,5 @@ const NotificationSchema = new mongoose.Schema({
   isRead: { type: Boolean, default: false },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Notification', NotificationSchema);
+const MongooseModel = mongoose.model('Notification', NotificationSchema);
+module.exports = require('../dbAdapter')('Notification', MongooseModel);

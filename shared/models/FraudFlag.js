@@ -11,4 +11,5 @@ const FraudFlagSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-module.exports = mongoose.model('FraudFlag', FraudFlagSchema);
+const MongooseModel = mongoose.model('FraudFlag', FraudFlagSchema);
+module.exports = require('../dbAdapter')('FraudFlag', MongooseModel);

@@ -7,6 +7,7 @@ const FraudFlag = require('../shared/models/FraudFlag');
 const RiskScore = require('../shared/models/RiskScore');
 
 // ✅ SECRET REMOVED: Now using environment variables for security.
+require('dns').setDefaultResultOrder('ipv4first');
 const MONGO_URI = process.env.MONGO_URI;
 
 const DEMO_DATA = [

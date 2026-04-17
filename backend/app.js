@@ -27,18 +27,18 @@ app.use(helmet({                  // Security headers + CSP
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "https://api.dicebear.com", "data:"],
+      imgSrc: ["'self'", "https://api.dicebear.com", "https://openweathermap.org", "data:"],
       connectSrc: ["'self'", "ws://localhost:3000"],
     },
   },
 }));
 app.use(logger);                  // Request logging
 
-// Global API rate limiter (120 req/min per IP across all endpoints)
+// Global API rate limiter (Relaxed heavily for demo)
 const rateLimit = require('express-rate-limit');
 const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 120,
+  max: 999999, // Disabled for Demo / Local usage
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: 'Too many requests. Please slow down.' },
@@ -53,6 +53,7 @@ app.use('/api/risk', riskRoute);
 app.use('/api/payout', payoutRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/demo', require('./routes/demo'));
+app.use('/api/weather', require('./routes/weather'));
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {

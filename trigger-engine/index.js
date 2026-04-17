@@ -35,9 +35,9 @@ async function start() {
     }
   }
 
-  if (!MONGO_URI) {
-    console.error('FATAL: MONGO_URI is not set');
-    process.exit(1);
+  if (!MONGO_URI || MONGO_URI === 'undefined') {
+    console.warn('[ENGINE] MONGO_URI is missing. Deferring execution to Backend fallback mode.');
+    return; // Exit gracefully
   }
 
   if (!process.env.INTERNAL_API_KEY) {

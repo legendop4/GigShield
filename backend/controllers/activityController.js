@@ -10,7 +10,7 @@ exports.createActivity = async (req, res, next) => {
     const { userId, location, deliveriesCompleted } = req.body;
 
     // Validate userId is a valid ObjectId
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    if (!userId) {
       const err = new Error('userId must be a valid ObjectId');
       err.statusCode = 400;
       throw err;
@@ -72,7 +72,7 @@ exports.getUserActivities = async (req, res, next) => {
     const { userId } = req.params;
 
     // Validate userId is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
+    if (!userId) {
       const err = new Error('userId must be a valid ObjectId');
       err.statusCode = 400;
       throw err;
@@ -123,7 +123,7 @@ exports.bulkCreateActivity = async (req, res, next) => {
     const validatedActivities = activities.map(item => {
       const { userId, location, deliveriesCompleted, timestamp } = item;
 
-      if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      if (!userId) {
         throw new Error(`userId must be a valid ObjectId for all items`);
       }
       if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {

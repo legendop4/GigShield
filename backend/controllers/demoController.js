@@ -12,10 +12,10 @@ const { evaluate, buildIdempotencyKey } = require(evaluatorPath);
 // Helper to snapshot current status for ALL demo users
 const getSystemStateSnapshot = async () => {
     const users = await User.find({ _id: { $in: [
-      "6605a2e5c1d2e3f4a0000001",
-      "6605a2e5c1d2e3f4a0000002",
-      "6605a2e5c1d2e3f4a0000003",
-      "6605a2e5c1d2e3f4a0000004"
+      'demo_user_001',
+      'demo_user_002',
+      'demo_user_003',
+      'demo_user_004'
     ]}}).lean();
 
     const snapshot = {};
@@ -37,72 +37,92 @@ const getSystemStateSnapshot = async () => {
     return snapshot;
 };
 
-const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 // --- THE INVESTOR PERSONAS ---
-const DEMO_USERS = [
-  {
-    _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000001"),
-    name: "Shivam (Perfect Pilot)",
-    email: "shivam@gigshield.ai",
-    phone: "+919999999901",
-    trustScore: 0.99,
-    isPremium: true, tier: 'sentinel',
-    type: "legit",
-    otp: "123456",
-    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-  },
-  {
-    _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000002"),
-    name: "High-Risk Node",
-    email: "risk@gigshield.ai",
-    phone: "+919876543202",
-    trustScore: 0.85,
-    isPremium: true, tier: 'sentinel',
-    type: "high-risk",
-    otp: "123456",
-    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-  },
-  {
-    _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000003"),
-    name: "Suspicious Pattern",
-    email: "suspicious@gigshield.ai",
-    phone: "+919876543203",
-    trustScore: 0.40,
-    isPremium: true, tier: 'sentinel',
-    type: "suspicious",
-    otp: "123456",
-    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-  },
-  {
-    _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000004"),
-    name: "Fraudulent Actor",
-    email: "fraud@gigshield.ai",
-    phone: "9876543204",
-    trustScore: 0.10,
-    isPremium: true, tier: 'sentinel',
-    type: "fraud",
-    otp: "123456",
-    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-  },
-  {
-    _id: new mongoose.Types.ObjectId("6605a2e5c1d2e3f4a0000005"),
-    name: "Admin Commander",
-    email: "admin@gigshield.ai",
-    phone: "0000000000",
-    role: "admin",
-    trustScore: 1.0,
-    isPremium: true, tier: 'sentinel',
-    type: "legit",
-    otp: "123456",
-    otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-  }
-];
+// Using plain string IDs to be compatible with both Mongoose and in-memory adapter
+const DEMO_IDS = {
+  pilot:      'demo_user_001',
+  highRisk:   'demo_user_002',
+  suspicious: 'demo_user_003',
+  fraud:      'demo_user_004',
+  admin:      'demo_user_005',
+};
+
+// Pre-hash the demo OTP so bcrypt.compare('123456', hash) works
+let demoOtpHash = null;
+const getDemoOtpHash = async () => {
+    if (!demoOtpHash) demoOtpHash = await bcrypt.hash('123456', 10);
+    return demoOtpHash;
+};
+
+const buildDemoUsers = async () => {
+    const otpHash = await getDemoOtpHash();
+    return [
+      {
+        _id: DEMO_IDS.pilot,
+        name: "Shivam (Perfect Pilot)",
+        email: "shivam@gigshield.ai",
+        phone: "9999999901",
+        trustScore: 0.99,
+        isPremium: true, tier: 'sentinel', role: 'worker',
+        type: "legit",
+        otp: otpHash,
+        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      },
+      {
+        _id: DEMO_IDS.highRisk,
+        name: "High-Risk Node",
+        email: "risk@gigshield.ai",
+        phone: "9876543202",
+        trustScore: 0.85,
+        isPremium: true, tier: 'sentinel', role: 'worker',
+        type: "high-risk",
+        otp: otpHash,
+        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      },
+      {
+        _id: DEMO_IDS.suspicious,
+        name: "Suspicious Pattern",
+        email: "suspicious@gigshield.ai",
+        phone: "9876543203",
+        trustScore: 0.40,
+        isPremium: true, tier: 'sentinel', role: 'worker',
+        type: "suspicious",
+        otp: otpHash,
+        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      },
+      {
+        _id: DEMO_IDS.fraud,
+        name: "Fraudulent Actor",
+        email: "fraud@gigshield.ai",
+        phone: "9876543204",
+        trustScore: 0.10,
+        isPremium: true, tier: 'sentinel', role: 'worker',
+        type: "fraud",
+        otp: otpHash,
+        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      },
+      {
+        _id: DEMO_IDS.admin,
+        name: "Admin Commander",
+        email: "admin@gigshield.ai",
+        phone: "0000000000",
+        role: "admin",
+        trustScore: 1.0,
+        isPremium: true, tier: 'sentinel',
+        type: "legit",
+        otp: otpHash,
+        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+      }
+    ];
+};
 
 // --- CORE STABILITY SEED LOGIC ---
 const seed = async () => {
     try {
         console.log("[STABILITY] Starting internal demo reset...");
+        const DEMO_USERS = await buildDemoUsers();
         const userIds = DEMO_USERS.map(u => u._id);
         const userEmails = DEMO_USERS.map(u => u.email);
         const userPhones = DEMO_USERS.map(u => u.phone);
@@ -132,7 +152,6 @@ const seed = async () => {
                     });
                 }
             } else if (type === 'fraud') {
-                // Fraud starts with clean slate, we will simulate the impossible movement later
                 await ActivityLog.create({ userId: uData._id, location: { lat: 28.7041, lng: 77.1025 }, deliveriesCompleted: 1, timestamp: new Date(now.getTime() - 600000) });
             }
 
@@ -172,7 +191,7 @@ exports.getDemoState = async (req, res, next) => {
 // 1.5 Simulate Fraud Live Activity
 exports.simulateFraud = async (req, res, next) => {
     try {
-        const fraudUserId = "6605a2e5c1d2e3f4a0000004";
+        const fraudUserId = 'demo_user_004';
         const { detectImpossibleTravel } = require('../services/fraudDetectionService');
         
         const now = new Date();
@@ -211,18 +230,19 @@ exports.simulateCrisis = async (req, res, next) => {
         // For the demo, we directly push a > 0.5 score for active users.
         // User 3 (Suspicious) is hardcoded logic: we give them high risk too, but trigger evaluator blocks them later.
         
-        const DEMO_IDS = [
-          "6605a2e5c1d2e3f4a0000001",
-          "6605a2e5c1d2e3f4a0000002",
-          "6605a2e5c1d2e3f4a0000003",
-          "6605a2e5c1d2e3f4a0000004"
+        const CRISIS_IDS = [
+          'demo_user_001',
+          'demo_user_002',
+          'demo_user_003',
+          'demo_user_004'
         ];
-        const users = await User.find({ _id: { $in: DEMO_IDS } });
+        const users = await User.find({ _id: { $in: CRISIS_IDS } });
         for (const u of users) {
            await RiskScore.create({
               userId: u._id,
               score: 0.95, // High Risk (Trigger ready)
-              factors: { weather: 3, traffic: 1, pollution: 2, _demo_forced: true }
+              factors: { weather: 3, traffic: 1, pollution: 2, _demo_forced: true },
+              createdAt: new Date(Date.now() + 1000), // Ensure this sorts AFTER baseline
            });
         }
 

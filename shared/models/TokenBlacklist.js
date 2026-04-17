@@ -5,4 +5,5 @@ const TokenBlacklistSchema = new mongoose.Schema({
   expiresAt: { type: Date, required: true, index: { expires: 0 } }, // TTL index: auto-delete after expiry
 }, { timestamps: true });
 
-module.exports = mongoose.model('TokenBlacklist', TokenBlacklistSchema);
+const MongooseModel = mongoose.model('TokenBlacklist', TokenBlacklistSchema);
+module.exports = require('../dbAdapter')('TokenBlacklist', MongooseModel);

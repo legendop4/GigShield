@@ -6,4 +6,5 @@ const RiskScoreSchema = new mongoose.Schema({
   factors: { type: mongoose.Schema.Types.Mixed },
 }, { timestamps: true });
 
-module.exports = mongoose.model('RiskScore', RiskScoreSchema);
+const MongooseModel = mongoose.model('RiskScore', RiskScoreSchema);
+module.exports = require('../dbAdapter')('RiskScore', MongooseModel);

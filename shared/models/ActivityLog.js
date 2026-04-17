@@ -13,4 +13,5 @@ const ActivityLogSchema = new mongoose.Schema({
 // Compound index optimises getUserActivities sort query
 ActivityLogSchema.index({ userId: 1, timestamp: -1 });
 
-module.exports = mongoose.model('ActivityLog', ActivityLogSchema);
+const MongooseModel = mongoose.model('ActivityLog', ActivityLogSchema);
+module.exports = require('../dbAdapter')('ActivityLog', MongooseModel);

@@ -12,7 +12,7 @@ exports.initiatePayout = async (req, res, next) => {
   try {
     const { userId, amount, triggerType } = req.body;
 
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+    if (!userId) {
       const err = new Error('Valid userId is required');
       err.statusCode = 400;
       throw err;
