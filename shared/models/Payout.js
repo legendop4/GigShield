@@ -14,5 +14,4 @@ const PayoutSchema = new mongoose.Schema({
   reason: { type: String }
 }, { timestamps: true });
 
-const MongooseModel = mongoose.model('Payout', PayoutSchema);
-module.exports = require('../dbAdapter')('Payout', MongooseModel);
+module.exports = mongoose.model('Payout', PayoutSchema);

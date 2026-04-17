@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Shield, Wallet, History, User as UserIcon, ShieldAlert } from 'lucide-react';
+import { Shield, Wallet, History, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const BottomNav = () => {
@@ -11,7 +11,6 @@ const BottomNav = () => {
     { name: 'Payouts', icon: Wallet, path: '/payouts' },
     { name: 'History', icon: History, path: '/history' },
     { name: 'Profile', icon: UserIcon, path: '/profile' },
-    ...(user?.role === 'admin' ? [{ name: 'Admin', icon: ShieldAlert, path: '/admin' }] : []),
   ];
 
   return (
@@ -23,8 +22,7 @@ const BottomNav = () => {
             key={tab.name}
             to={tab.path}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-1 flex-1 py-1 rounded-xl transition-all ${
-                isActive ? 'bg-slate-800 text-white shadow-inner scale-95' : 'text-slate-400'
+              `flex flex-col items-center gap-1 flex-1 py-1 rounded-xl transition-all ${isActive ? 'bg-slate-800 text-white shadow-inner scale-95' : 'text-slate-400'
               }`
             }
           >
@@ -56,8 +54,7 @@ const BottomNav = () => {
               key={tab.name}
               to={tab.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${
-                  isActive ? 'bg-emerald/10 text-emerald shadow-inner' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${isActive ? 'bg-emerald/10 text-emerald shadow-inner' : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`
               }
             >
@@ -74,13 +71,13 @@ const BottomNav = () => {
         {/* Desktop Profile Section at Bottom */}
         <div className="mt-auto pt-6 border-t border-white/5">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden shadow-soft shrink-0">
-               <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`} alt="Avatar" className="w-full h-full object-cover" />
-             </div>
-             <div className="overflow-hidden">
-               <span className="font-bold text-sm leading-tight block truncate">{user?.name || 'Verified Worker'}</span>
-               <span className="text-[10px] text-slate-400 font-medium truncate">{user?.phone}</span>
-             </div>
+            <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden shadow-soft shrink-0">
+              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`} alt="Avatar" className="w-full h-full object-cover" />
+            </div>
+            <div className="overflow-hidden">
+              <span className="font-bold text-sm leading-tight block truncate">{user?.name || 'Verified Worker'}</span>
+              <span className="text-[10px] text-slate-400 font-medium truncate">{user?.phone}</span>
+            </div>
           </div>
         </div>
       </aside>

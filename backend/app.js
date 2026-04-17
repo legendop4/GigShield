@@ -20,17 +20,12 @@ app.use(cors({                    // Allow all origins (nginx reverse proxy)
   origin: '*',
   credentials: true,
 }));
-app.use(helmet({                  // Security headers + CSP
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "https://api.dicebear.com", "https://openweathermap.org", "data:"],
-      connectSrc: ["'self'", "ws:", "wss:"],
-    },
-  },
+app.use(helmet({
+  contentSecurityPolicy: false,   // Disabled for HF Spaces iframe embedding
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: false,
+  frameguard: false,              // Allow HF Spaces to iframe the app
 }));
 app.use(logger);                  // Request logging
 
@@ -57,9 +52,9 @@ app.use('/api/weather', require('./routes/weather'));
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {
-    const err = new Error('Not Found');
-    err.statusCode = 404;
-    next(err);
+  const err = new Error('Not Found');
+  err.statusCode = 404;
+  next(err);
 });
 
 // Central error handler

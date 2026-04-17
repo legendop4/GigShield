@@ -10,7 +10,7 @@ exports.createActivity = async (req, res, next) => {
     const { userId, location, deliveriesCompleted } = req.body;
 
     // Validate userId is a valid ObjectId
-    if (!userId) {
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       const err = new Error('userId must be a valid ObjectId');
       err.statusCode = 400;
       throw err;
@@ -42,13 +42,13 @@ exports.createActivity = async (req, res, next) => {
     const nowTimestamp = new Date();
 
     if (lastActivity) {
-        const { detectImpossibleTravel } = require('../services/fraudDetectionService');
-        const currentData = { location, timestamp: nowTimestamp };
-        const previousData = { 
-            location: lastActivity.location, 
-            timestamp: new Date(lastActivity.timestamp || lastActivity.createdAt) 
-        };
-        await detectImpossibleTravel(userId, currentData, previousData);
+      const { detectImpossibleTravel } = require('../services/fraudDetectionService');
+      const currentData = { location, timestamp: nowTimestamp };
+      const previousData = {
+        location: lastActivity.location,
+        timestamp: new Date(lastActivity.timestamp || lastActivity.createdAt)
+      };
+      await detectImpossibleTravel(userId, currentData, previousData);
     }
 
     const activity = await ActivityLog.create({
@@ -72,7 +72,7 @@ exports.getUserActivities = async (req, res, next) => {
     const { userId } = req.params;
 
     // Validate userId is a valid ObjectId
-    if (!userId) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       const err = new Error('userId must be a valid ObjectId');
       err.statusCode = 400;
       throw err;
@@ -84,22 +84,22 @@ exports.getUserActivities = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const total = await ActivityLog.countDocuments({ userId });
-    
+
     const logs = await ActivityLog.find({ userId })
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(limit)
       .exec();
 
-    res.json({ 
-      success: true, 
-      count: logs.length, 
+    res.json({
+      success: true,
+      count: logs.length,
       pagination: {
         total,
         page,
         pages: Math.ceil(total / limit)
       },
-      data: logs 
+      data: logs
     });
   } catch (err) {
     next(err);
@@ -123,7 +123,7 @@ exports.bulkCreateActivity = async (req, res, next) => {
     const validatedActivities = activities.map(item => {
       const { userId, location, deliveriesCompleted, timestamp } = item;
 
-      if (!userId) {
+      if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
         throw new Error(`userId must be a valid ObjectId for all items`);
       }
       if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
@@ -151,30 +151,30 @@ exports.bulkCreateActivity = async (req, res, next) => {
     const { detectImpossibleTravel } = require('../services/fraudDetectionService');
     const userGroups = {};
     for (const item of validatedActivities) {
-        const uid = item.userId.toString();
-        if (!userGroups[uid]) userGroups[uid] = [];
-        userGroups[uid].push(item);
+      const uid = item.userId.toString();
+      if (!userGroups[uid]) userGroups[uid] = [];
+      userGroups[uid].push(item);
     }
 
     for (const [uid, userActivities] of Object.entries(userGroups)) {
-        userActivities.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-        
-        const lastActivity = await ActivityLog.findOne({ userId: uid }).sort({ timestamp: -1 });
-        let previousData = null;
-        if (lastActivity) {
-            previousData = {
-                location: lastActivity.location,
-                timestamp: new Date(lastActivity.timestamp || lastActivity.createdAt)
-            };
-        }
+      userActivities.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-        for (const item of userActivities) {
-            const currentData = { location: item.location, timestamp: item.timestamp };
-            if (previousData) {
-                await detectImpossibleTravel(uid, currentData, previousData);
-            }
-            previousData = currentData;
+      const lastActivity = await ActivityLog.findOne({ userId: uid }).sort({ timestamp: -1 });
+      let previousData = null;
+      if (lastActivity) {
+        previousData = {
+          location: lastActivity.location,
+          timestamp: new Date(lastActivity.timestamp || lastActivity.createdAt)
+        };
+      }
+
+      for (const item of userActivities) {
+        const currentData = { location: item.location, timestamp: item.timestamp };
+        if (previousData) {
+          await detectImpossibleTravel(uid, currentData, previousData);
         }
+        previousData = currentData;
+      }
     }
 
     const inserted = await ActivityLog.insertMany(validatedActivities);

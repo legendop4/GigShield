@@ -11,12 +11,16 @@ const { evaluate, buildIdempotencyKey } = require(evaluatorPath);
 
 // Helper to snapshot current status for ALL demo users
 const getSystemStateSnapshot = async () => {
-    const users = await User.find({ _id: { $in: [
-      'demo_user_001',
-      'demo_user_002',
-      'demo_user_003',
-      'demo_user_004'
-    ]}}).lean();
+    const users = await User.find({
+        _id: {
+            $in: [
+                'demo_user_001',
+                'demo_user_002',
+                'demo_user_003',
+                'demo_user_004'
+            ]
+        }
+    }).lean();
 
     const snapshot = {};
     for (const u of users) {
@@ -42,11 +46,11 @@ const bcrypt = require('bcryptjs');
 // --- THE INVESTOR PERSONAS ---
 // Using plain string IDs to be compatible with both Mongoose and in-memory adapter
 const DEMO_IDS = {
-  pilot:      'demo_user_001',
-  highRisk:   'demo_user_002',
-  suspicious: 'demo_user_003',
-  fraud:      'demo_user_004',
-  admin:      'demo_user_005',
+    pilot: 'demo_user_001',
+    highRisk: 'demo_user_002',
+    suspicious: 'demo_user_003',
+    fraud: 'demo_user_004',
+    admin: 'demo_user_005',
 };
 
 // Pre-hash the demo OTP so bcrypt.compare('123456', hash) works
@@ -59,62 +63,62 @@ const getDemoOtpHash = async () => {
 const buildDemoUsers = async () => {
     const otpHash = await getDemoOtpHash();
     return [
-      {
-        _id: DEMO_IDS.pilot,
-        name: "Shivam (Perfect Pilot)",
-        email: "shivam@gigshield.ai",
-        phone: "9999999901",
-        trustScore: 0.99,
-        isPremium: true, tier: 'sentinel', role: 'worker',
-        type: "legit",
-        otp: otpHash,
-        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-      },
-      {
-        _id: DEMO_IDS.highRisk,
-        name: "High-Risk Node",
-        email: "risk@gigshield.ai",
-        phone: "9876543202",
-        trustScore: 0.85,
-        isPremium: true, tier: 'sentinel', role: 'worker',
-        type: "high-risk",
-        otp: otpHash,
-        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-      },
-      {
-        _id: DEMO_IDS.suspicious,
-        name: "Suspicious Pattern",
-        email: "suspicious@gigshield.ai",
-        phone: "9876543203",
-        trustScore: 0.40,
-        isPremium: true, tier: 'sentinel', role: 'worker',
-        type: "suspicious",
-        otp: otpHash,
-        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-      },
-      {
-        _id: DEMO_IDS.fraud,
-        name: "Fraudulent Actor",
-        email: "fraud@gigshield.ai",
-        phone: "9876543204",
-        trustScore: 0.10,
-        isPremium: true, tier: 'sentinel', role: 'worker',
-        type: "fraud",
-        otp: otpHash,
-        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-      },
-      {
-        _id: DEMO_IDS.admin,
-        name: "Admin Commander",
-        email: "admin@gigshield.ai",
-        phone: "0000000000",
-        role: "admin",
-        trustScore: 1.0,
-        isPremium: true, tier: 'sentinel',
-        type: "legit",
-        otp: otpHash,
-        otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-      }
+        {
+            _id: DEMO_IDS.pilot,
+            name: "Shivam (Perfect Pilot)",
+            email: "shivam@gigshield.ai",
+            phone: "9999999901",
+            trustScore: 0.99,
+            isPremium: true, tier: 'sentinel', role: 'worker',
+            type: "legit",
+            otp: otpHash,
+            otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        },
+        {
+            _id: DEMO_IDS.highRisk,
+            name: "High-Risk Node",
+            email: "risk@gigshield.ai",
+            phone: "9876543202",
+            trustScore: 0.85,
+            isPremium: true, tier: 'sentinel', role: 'worker',
+            type: "high-risk",
+            otp: otpHash,
+            otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        },
+        {
+            _id: DEMO_IDS.suspicious,
+            name: "Suspicious Pattern",
+            email: "suspicious@gigshield.ai",
+            phone: "9876543203",
+            trustScore: 0.40,
+            isPremium: true, tier: 'sentinel', role: 'worker',
+            type: "suspicious",
+            otp: otpHash,
+            otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        },
+        {
+            _id: DEMO_IDS.fraud,
+            name: "Fraudulent Actor",
+            email: "fraud@gigshield.ai",
+            phone: "9876543204",
+            trustScore: 0.10,
+            isPremium: true, tier: 'sentinel', role: 'worker',
+            type: "fraud",
+            otp: otpHash,
+            otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        },
+        {
+            _id: DEMO_IDS.admin,
+            name: "Admin Commander",
+            email: "admin@gigshield.ai",
+            phone: "0000000000",
+            role: "admin",
+            trustScore: 1.0,
+            isPremium: true, tier: 'sentinel',
+            type: "legit",
+            otp: otpHash,
+            otpExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        }
     ];
 };
 
@@ -193,7 +197,7 @@ exports.simulateFraud = async (req, res, next) => {
     try {
         const fraudUserId = 'demo_user_004';
         const { detectImpossibleTravel } = require('../services/fraudDetectionService');
-        
+
         const now = new Date();
         const previousData = {
             location: { lat: 28.7041, lng: 77.1025 }, // Delhi (seeded previously)
@@ -206,12 +210,12 @@ exports.simulateFraud = async (req, res, next) => {
 
         // Trigger the central fraud service natively
         await detectImpossibleTravel(fraudUserId, currentData, previousData);
-        
-        await ActivityLog.create({ 
-            userId: fraudUserId, 
-            location: currentData.location, 
-            deliveriesCompleted: 2, 
-            timestamp: currentData.timestamp 
+
+        await ActivityLog.create({
+            userId: fraudUserId,
+            location: currentData.location,
+            deliveriesCompleted: 2,
+            timestamp: currentData.timestamp
         });
 
         const afterState = await getSystemStateSnapshot();
@@ -229,28 +233,27 @@ exports.simulateCrisis = async (req, res, next) => {
         // Give everybody high environmental risk except we only modify the "factors" logic
         // For the demo, we directly push a > 0.5 score for active users.
         // User 3 (Suspicious) is hardcoded logic: we give them high risk too, but trigger evaluator blocks them later.
-        
+
         const CRISIS_IDS = [
-          'demo_user_001',
-          'demo_user_002',
-          'demo_user_003',
-          'demo_user_004'
+            'demo_user_001',
+            'demo_user_002',
+            'demo_user_003',
+            'demo_user_004'
         ];
         const users = await User.find({ _id: { $in: CRISIS_IDS } });
         for (const u of users) {
-           await RiskScore.create({
-              userId: u._id,
-              score: 0.95, // High Risk (Trigger ready)
-              factors: { weather: 3, traffic: 1, pollution: 2, _demo_forced: true },
-              createdAt: new Date(Date.now() + 1000), // Ensure this sorts AFTER baseline
-           });
+            await RiskScore.create({
+                userId: u._id,
+                score: 0.95, // High Risk (Trigger ready)
+                factors: { weather: 3, traffic: 1, pollution: 2, _demo_forced: true }
+            });
         }
 
         const afterState = await getSystemStateSnapshot();
         const difference = { before: beforeState, after: afterState };
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             message: "Simulated Heavy Rain crisis across all nodes.",
             data: difference
         });
@@ -263,10 +266,10 @@ exports.simulateCrisis = async (req, res, next) => {
 exports.fireEngine = async (req, res, next) => {
     try {
         const beforeState = await getSystemStateSnapshot();
-        
+
         // Run standard Trigger evaluation (dry-run rules)
         const evaluationResults = await evaluate(); // Returns array of eligible {userId, riskScore}
-        
+
         let financialMetrics = { totalPayouts: 0, fraudPreventedBase: 0, actions: [] };
 
         // We process all 4 demo users to generate "Explainability" tracking.
@@ -274,54 +277,54 @@ exports.fireEngine = async (req, res, next) => {
         const now = new Date();
 
         for (const u of allUsers) {
-           const userId = u._id.toString();
-           const isEligible = evaluationResults.find(e => e.userId === userId);
+            const userId = u._id.toString();
+            const isEligible = evaluationResults.find(e => e.userId === userId);
 
-           // Deep Diagnostic for Explainability Matrix
-           const latestRisk = await RiskScore.findOne({ userId: u._id }).sort({ createdAt: -1 }).lean();
-           const activeFraud = await FraudFlag.findOne({ userId: u._id, status: { $in: ['open', 'investigating'] }}).lean();
-           
-           // Cooldown check (matches evaluator.js)
-           const cooldownLimit = new Date(now.getTime() - (parseInt(process.env.PAYOUT_COOLDOWN_MS) || 86400000));
-           const recentPayout = await Payout.findOne({ userId: u._id, createdAt: { $gte: cooldownLimit } }).lean();
-           
-           if (isEligible) {
-               // Legit / High Risk User logic
-               const iKey = buildIdempotencyKey(userId, now);
-               const existingPayout = await Payout.findOne({ idempotencyKey: iKey }).lean();
-               financialMetrics.actions.push({
-                   userId: u.name,
-                   status: "Approved",
-                   confidenceScore: 0.96,
-                   amount: 500,
-                   explainability: "Approved. Consistent delivery history and location telemetry sync perfectly with external hazard markers."
-               });
-               financialMetrics.totalPayouts += 500;
-               if (!existingPayout) {
-                 const { simulatePayout } = require('../services/paymentGateway');
-                 const gatewayRes = await simulatePayout(userId, 500, iKey);
-                 await Payout.create({ 
-                     userId: u._id, 
-                     amount: 500, 
-                     status: gatewayRes.status, 
-                     transactionId: gatewayRes.transactionId,
-                     reason: "Approved. Consistent delivery history and location telemetry sync perfectly with external hazard markers.",
-                     triggerType: 'demo_auto', 
-                     idempotencyKey: iKey 
-                 });
-               }
-           } else {
-               // Determine WHY it failed for Explainability Layer
-               if (activeFraud) {
-                   financialMetrics.actions.push({
-                       userId: u.name,
-                       status: "Blocked",
-                       confidenceScore: 0.99,
-                       amount: 0,
-                       explainability: "Blocked due to impossible location telemetry (Delhi to Mumbai in 5 mins). Malicious behavior pattern detected."
-                   });
-                   financialMetrics.fraudPreventedBase += 500;
-               } else if (recentPayout) {
+            // Deep Diagnostic for Explainability Matrix
+            const latestRisk = await RiskScore.findOne({ userId: u._id }).sort({ createdAt: -1 }).lean();
+            const activeFraud = await FraudFlag.findOne({ userId: u._id, status: { $in: ['open', 'investigating'] } }).lean();
+
+            // Cooldown check (matches evaluator.js)
+            const cooldownLimit = new Date(now.getTime() - (parseInt(process.env.PAYOUT_COOLDOWN_MS) || 86400000));
+            const recentPayout = await Payout.findOne({ userId: u._id, createdAt: { $gte: cooldownLimit } }).lean();
+
+            if (isEligible) {
+                // Legit / High Risk User logic
+                const iKey = buildIdempotencyKey(userId, now);
+                const existingPayout = await Payout.findOne({ idempotencyKey: iKey }).lean();
+                financialMetrics.actions.push({
+                    userId: u.name,
+                    status: "Approved",
+                    confidenceScore: 0.96,
+                    amount: 500,
+                    explainability: "Approved. Consistent delivery history and location telemetry sync perfectly with external hazard markers."
+                });
+                financialMetrics.totalPayouts += 500;
+                if (!existingPayout) {
+                    const { simulatePayout } = require('../services/paymentGateway');
+                    const gatewayRes = await simulatePayout(userId, 500, iKey);
+                    await Payout.create({
+                        userId: u._id,
+                        amount: 500,
+                        status: gatewayRes.status,
+                        transactionId: gatewayRes.transactionId,
+                        reason: "Approved. Consistent delivery history and location telemetry sync perfectly with external hazard markers.",
+                        triggerType: 'demo_auto',
+                        idempotencyKey: iKey
+                    });
+                }
+            } else {
+                // Determine WHY it failed for Explainability Layer
+                if (activeFraud) {
+                    financialMetrics.actions.push({
+                        userId: u.name,
+                        status: "Blocked",
+                        confidenceScore: 0.99,
+                        amount: 0,
+                        explainability: "Blocked due to impossible location telemetry (Delhi to Mumbai in 5 mins). Malicious behavior pattern detected."
+                    });
+                    financialMetrics.fraudPreventedBase += 500;
+                } else if (recentPayout) {
                     financialMetrics.actions.push({
                         userId: u.name,
                         status: "Hold",
@@ -329,23 +332,23 @@ exports.fireEngine = async (req, res, next) => {
                         amount: 0,
                         explainability: "Payout on hold. User received a recovery payout within the last 24 hours. Cooldown guard active."
                     });
-               } else if (u.trustScore < 0.5) {
-                   financialMetrics.actions.push({
-                       userId: u.name,
-                       status: "Under Review",
-                       confidenceScore: 0.65,
-                       amount: 0,
-                       explainability: "Held for manual review. Critically low activity history (< 1 delivery). Insufficient behavioral baseline."
-                   });
-               } else if (latestRisk && latestRisk.score < 0.5) {
-                   financialMetrics.actions.push({
-                       userId: u.name,
-                       status: "Ignored",
-                       confidenceScore: 1.0,
-                       amount: 0,
-                       explainability: "Ignored. Risk score is perfectly stable, no physical hazard detected in this zone."
-                   });
-               } else {
+                } else if (u.trustScore < 0.5) {
+                    financialMetrics.actions.push({
+                        userId: u.name,
+                        status: "Under Review",
+                        confidenceScore: 0.65,
+                        amount: 0,
+                        explainability: "Held for manual review. Critically low activity history (< 1 delivery). Insufficient behavioral baseline."
+                    });
+                } else if (latestRisk && latestRisk.score < 0.5) {
+                    financialMetrics.actions.push({
+                        userId: u.name,
+                        status: "Ignored",
+                        confidenceScore: 1.0,
+                        amount: 0,
+                        explainability: "Ignored. Risk score is perfectly stable, no physical hazard detected in this zone."
+                    });
+                } else {
                     financialMetrics.actions.push({
                         userId: u.name,
                         status: "Processing",
@@ -353,8 +356,8 @@ exports.fireEngine = async (req, res, next) => {
                         amount: 0,
                         explainability: "System is verifying external markers. Please ensure hazard simulation is active."
                     });
-               }
-           }
+                }
+            }
         }
 
         const afterState = await getSystemStateSnapshot();
