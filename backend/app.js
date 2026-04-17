@@ -16,8 +16,8 @@ const app = express();
 
 // Middleware
 app.use(express.json());          // JSON body parser
-app.use(cors({                    // Restricted CORS
-  origin: CORS_ORIGIN,
+app.use(cors({                    // Allow all origins (nginx reverse proxy)
+  origin: '*',
   credentials: true,
 }));
 app.use(helmet({                  // Security headers + CSP
@@ -28,7 +28,7 @@ app.use(helmet({                  // Security headers + CSP
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "https://api.dicebear.com", "https://openweathermap.org", "data:"],
-      connectSrc: ["'self'", "ws://localhost:3000"],
+      connectSrc: ["'self'", "ws:", "wss:"],
     },
   },
 }));

@@ -21,8 +21,8 @@ const startServer = async () => {
   socketService.init(server);
 
   // Start HTTP server instead of Express
-  server.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT} (REST + WebSockets)`);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on http://0.0.0.0:${PORT} (REST + WebSockets)`);
   });
 };
 

@@ -20,12 +20,13 @@ RUN apk add --no-cache nginx supervisor libc6-compat gcompat
 WORKDIR /app
 
 # 1. Install Unified Dependencies (Root)
-# Merged all backend, trigger-engine, and shared dependencies here
 COPY package*.json ./
 RUN npm install --omit=dev
 
-# 2. Copy All Source Code (Backend, Trigger, Shared)
-COPY . .
+# 2. Copy Source Code (selective — no .env, no binaries)
+COPY backend/ ./backend/
+COPY shared/ ./shared/
+COPY trigger-engine/ ./trigger-engine/
 
 # 3. Populate Frontend Build
 RUN rm -rf /usr/share/nginx/html/*
@@ -42,5 +43,5 @@ RUN mkdir -p /var/lib/nginx /var/log/nginx /run/nginx /tmp/supervisor /app/share
 USER 1000
 EXPOSE 7860
 
-# Start all processes via Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# Seed demo accounts then start supervisor
+CMD ["sh", "-c", "node /app/backend/seed_demo_accounts.js; /usr/bin/supervisord -c /etc/supervisord.conf"]
